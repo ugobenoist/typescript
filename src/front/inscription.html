@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register</title>
+  <link rel="stylesheet" href="css/inscription.css">
+</head>
+<body>
+  <div class="register-container">
+    <h2>Register</h2>
+    <form id="register-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="Enter your email">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="Enter your password">
+      </div>
+      <div class="form-group">
+        <label for="confirm-password">Confirm Password</label>
+        <input type="password" id="confirm-password" name="confirm-password" required placeholder="Confirm your password">
+      </div>
+      <button type="submit" class="btn">Register</button>
+    </form>
+    <p class="error-message" id="error-message"></p>
+    <a href="login.html" class="login-link">Already have an account? Log in</a>
+  </div>
+
+  <script type="module">
+    import { registerUser } from '../../lib/register.js'; // Assumes a function to handle registration logic
+
+    const registerForm = document.getElementById('register-form');
+    const errorMessage = document.getElementById('error-message');
+
+    registerForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (password !== confirmPassword) {
+        errorMessage.textContent = 'Passwords do not match!';
+        return;
+      }
+
+      const success = await registerUser(email, password);
+      if (success) {
+        alert('Registration successful!');
+        window.location.href = 'login.html';
+      } else {
+        errorMessage.textContent = 'Failed to register. Please try again.';
+      }
+    });
+  </script>
+</bo

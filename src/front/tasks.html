@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+  <link rel="stylesheet" href="css/task.css">
+</head>
+<body>
+  <h1>Task Manager</h1>
+  <div id="task-container"></div>
+
+  <h2>Add a New Task</h2>
+  <form id="add-task-form">
+    <label for="task-title">Title:</label>
+    <input type="text" id="task-title" required placeholder="Task title">
+    <label for="task-description">Description:</label>
+    <input type="text" id="task-description" required placeholder="Task description">
+    <button type="submit">Add Task</button>
+  </form>
+
+  <h2>Update Task</h2>
+  <form id="update-task-form">
+    <label for="update-task-id">Task ID:</label>
+    <input type="text" id="update-task-id" required placeholder="Enter task ID">
+    <label for="update-title">New Title:</label>
+    <input type="text" id="update-title" required placeholder="Enter new title">
+    <label for="update-description">New Description:</label>
+    <input type="text" id="update-description" required placeholder="Enter new description">
+    <button type="submit">Update Task</button>
+  </form>
+
+  <script type="module">
+    import { getJoinedData } from '../../lib/select.js';
+    import { insertTask } from '../../lib/jointures/insert.js';
+    import { deleteUser } from '../../lib/delete.js';
+    import { updateTask } from '../../lib/update.js';
+
+    const taskContainer = document.getElementById('task-container');
+    const addTaskForm = document.getElementById('add-task-form');
+    const updateTaskForm = document.getElementById('update-task-form');
+
+    const fetchTasks = async () => {
+      const tasks = await getJoinedData();
+      if (!tasks) {
+        console.error('Failed to fetch tasks');
+        return;
+      }
+
+      displayTasks(tasks);
+    };
+
+    const displayTasks = (tasks) => {
+      taskContainer.innerHTML = '';
+
+      tasks.forEach((task) => {
+        const taskItem = document.createElement('div');
+        taskItem.classList.add('task-item');
+        taskItem.innerHTML = `
+          <div>
+            <strong>${task.title}</strong>
+            <p>${task.description}</p>
+          </div>
+          <div class="task-actions">
+            <button data-task-id="${task.id}" class="delete-task">Delete</button>
+          </div>
+        `;
+        taskContainer.appendChild(taskItem);
+      });
+
+      document.querySelectorAll('.delete-task').forEach((button) => {
+        button.addEventListener('click', async (event) => {
+          const taskId = button.getAttribute('data-task-id');
+          if (taskId) {
+            const success = await deleteUser(taskId); // Delete the task
+            if (success) {
+              alert('Task deleted successfully!');
+              fetchTasks();
+            } else {
+              alert('Failed to delete task. Try again.');
+            }
+          }
+        });
+      });
+    };
+
+    addTaskForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const title = document.getElementById('task-title').value;
+      const description = document.getElementById('task-description').value;
+
+      const success = await insertTask('user-id', title, description);
+      if (success) {
+        alert('Task added successfully!');
+        fetchTasks();
+        addTaskForm.reset();
+      } else {
+        alert('Failed to add task. Try again.');
+      }
+    });
+
+    updateTaskForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const taskId = document.getElementById('update-task-id').value;
+      const title = document.getElementById('update-title').value;
+      const description = document.getElementById('update-description').value;
+
+      const success = await updateTask(taskId, title, description);
+      if (success) {
+        alert('Task updated successfully!');
+        fetchTasks();
+        updateTaskForm.reset();
+      } else {
+        alert('Failed to update task. Try again.');
+      }
+    });
+
+    // Load tasks on page load
+    fetchTasks();
+  </script>
+</body>
+</html>
+
