@@ -1,2 +1,2 @@
 # typescript
-Ugo BENOIST
+Rendu TypeScript Ugo BENOIST
